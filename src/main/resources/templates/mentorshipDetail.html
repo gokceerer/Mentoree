@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/jquery-ui.css}">
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script type="text/javascript" th:src="@{/js/lib/jquery-3.5.1.js}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script type="text/javascript" th:src="@{/js/lib/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/lib/jquery-ui.js}"></script>
+
+    <title>Mentörlük Detayı</title>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row title-area">
+        <div class="col-5 title">
+            <a href="/dashboard/user">Mentoree</a>
+        </div>
+
+        <div class="col-5 button-text text-right">
+            <a href="/dashboard/user">
+                <i class="material-icons">people</i>
+                Süreçlerim
+            </a>
+        </div>
+        <div class="col-2 button-text text-center">
+            <a href="/logout">
+                <i class="material-icons">exit_to_app</i>
+                Çıkış Yap
+            </a>
+        </div>
+    </div>
+    <div class="row" id="mentorship-detail">
+        <div class="col-4">
+            <div class="col">
+                <h2 class="sub-title">Mentör Bilgileri</h2>
+            </div>
+            <div class="col personal-info" th:object="${mentor}">
+                <ul>
+                    <li>
+                        <p> <span th:text="'Ad:'"></span> <p th:text="${mentor.getName()}"></p> </p>
+                    </li>
+                    <li>
+                        <p> <span th:text="'Soyadı:'"></span> <p th:text="${mentor.getSurname()}"></p> </p>
+                    </li>
+                </ul>
+
+            </div>
+            <div class="col">
+                <h2 class="sub-title">Mentee Bilgileri</h2>
+            </div>
+            <div class="col personal-info" th:object="${mentee}">
+                <ul>
+                    <li>
+                        <p> <span th:text="'Ad:'"></span> <p th:text="${mentee.getName()}"></p> </p>
+                    </li>
+                    <li>
+                        <p> <span th:text="'Soyadı:'"></span> <p th:text="${mentee.getSurname()}"></p> </p>
+                    </li>
+                </ul>
+            </div>
+            <div class="col">
+                <h2 class="sub-title">Mentörlük Hakkında</h2>
+            </div>
+            <div class="col personal-info" th:object="${mentorship}">
+                <input type="hidden" id="mentorship-id" th:value="${mentorship.getId()}">
+                <ul>
+                    <li>
+                        <p> <span th:text="'Konu:'"></span> <p th:text="${mentorship.getTopic().getName()}"></p> </p>
+                    </li>
+                    <li>
+                        <p>
+                            <span th:text="'Alt Konu:'"></span>
+                        <p th:text="${mentorship.getSubtopic().getName()}"></p>
+                        </p>
+                    </li>
+                    <li>
+                        <p> <span th:text="'Başlangıç Tarihi:'"></span> <p th:text="${mentorship.getStartDate()}"></p> </p>
+                    </li>
+                    <li>
+                        <div id="phase">
+                            <p th:if="${mentorship.getCurrentPhase() == null}"> <span th:text="'Faz:'"></span> Başlamadı</p> </p>
+                            <p th:unless="${mentorship.getCurrentPhase() == null} "> <span th:text="'Faz:'"></span> <p th:text="${mentorship.getCurrentPhase()}"></p> </p>
+                        </div>
+
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-7 mx-auto">
+            <div class="row">
+                <div class="col">
+                    <h2 class="table-title">Fazlar</h2>
+                </div>
+                <div class="col-3">
+                    <a th:if="${mentorship.getMentorshipPhases().isEmpty()}"class="float-right table-button" th:href="'#addPhaseModal'" data-toggle="modal" data-target="#addPhaseModal">
+                        <i class="material-icons md-24">create</i>
+                        Süreç Planla
+                    </a>
+
+                </div>
+                <div class="col-3">
+                    <a class="float-right table-button" id="start-phases">
+                        <i class="material-icons md-24">play_arrow</i>
+                        Süreci Başlat
+                    </a>
+                </div>
+            </div>
+            <table id="mentorship-table" class="table table-hover">
+                <thead>
+                <tr class="table-light text-center">
+                    <th scope="col">Faz Adı</th>
+                    <th scope="col">Durum</th>
+                    <th scope="col">Mentee Değerlendirmesi</th>
+                    <th scope="col">Mentör Değerlendirmesi</th>
+                    <th scope="col"></th>
+
+                </tr>
+                </thead>
+                <tbody>
+
+                <div th:each="phase: ${mentorship.getMentorshipPhases()}">
+                    <tr th:id="'phase-' + ${phase.getId()}" class="table-light text-center">
+                        <td style="display:none" th:text="${phase.getId()}"></td>
+                        <td th:text="${phase.getName()}"></td>
+                        <td th:text="${phase.getStatus()}"></td>
+                        <td th:if="${phase.isMenteeEvaluated()}" th:text="${phase.getMenteeRating()} + '/5'"></td>
+                        <td th:unless="${phase.isMenteeEvaluated()}" th:text="'--'"></td>
+                        <td th:if="${phase.isMentorEvaluated()}" th:text="${phase.getMentorRating()} + '/5'"></td>
+                        <td th:unless="${phase.isMentorEvaluated()}" th:text="'--'"></td>
+
+                        <td style="display:none" th:text="${phase.getMenteeEvaluation()}"></td>
+                        <td style="display:none" th:text="${phase.getMentorEvaluation()}"></td>
+
+                        <td class="text-left">
+                            <button th:if="${phase.getStatus().equals('Devam ediyor')}" class="btn-finish">
+                                <i class="material-icons md-24 md-dark">assignment_turned_in</i>
+                                Tamamla
+                            </button>
+                            <button th:if="${phase.getStatus().equals('Bitti') && user == mentorship.getMentor().getUser() && !phase.isMentorEvaluated()}" class="btn-evaluate" id="evaluateMentor">
+                                <i class="material-icons md-24 md-dark">comment</i>
+                                Değerlendir
+                            </button>
+                            <button th:if="${phase.getStatus().equals('Bitti') && user == mentorship.getMentee().getUser() && !phase.isMenteeEvaluated()}" class="btn-evaluate" id="evaluateMentee">
+                                <i class="material-icons md-24 md-dark">comment</i>
+                                Değerlendir
+                            </button>
+                            <button th:if="${phase.isMentorEvaluated() && phase.isMenteeEvaluated()}" class="btn-evaluate-detail" id="evaluationDetails">
+                                <i class="material-icons md-24 md-dark">assessment</i>
+                                Değerlendirme Sonucu
+                            </button>
+                        </td>
+                    </tr>
+                </div>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addPhaseModal" tabindex="-1" role="dialog" aria-labelledby="addPhaseFormLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addPhaseFormLabel">Süreç Oluştur</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form th:action="@{/createPhases}" th:method="post" id="addPhaseForm" autocomplete="off">
+                        <input type="hidden" name="mentorshipId" th:value="${mentorship.getId()}">
+                        <table id="phase-table" class="table table-hover text-center">
+                            <thead>
+                            <tr class="table-light d-flex">
+                                <th class="col-4" scope="col">Faz Adı</th>
+                                <th class="col-4" scope="col">Bitiş Tarihi</th>
+                                <th class="col-3" scope="col">Bitiş Saati</th>
+                                <th class="col-1" scope="col">
+                                    <a id="add-phase" data-toggle="tooltip" data-placement="top" title="Faz Ekle">
+                                        <i class="material-icons md-24 md-dark">add_circle_outline</i>
+                                    </a>
+                                </th>
+
+                            </tr>
+                            </thead>
+                            <tbody id="phase-adding-area">
+
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" id="phases-submit" class="btn btn-modal" form="addPhaseForm" value="Oluştur">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="evaluation-modal" tabindex="-1" role="dialog" aria-labelledby="evaluation-modal-label" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="evaluation-modal-label">Süreci Değerlendir</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form th:action="@{/createEvaluationOnPhase}" th:method="post" id="createEvaluationOnPhase" autocomplete="off">
+                        <input type="hidden" name="mentorshipId" th:value="${mentorship.getId()}">
+                        <input type="hidden" name="phaseId" id="phaseId">
+                        <div class='rating-stars text-center'>
+                            <ul id='stars'>
+                                <li class='star' data-toggle="tooltip" data-placement="top" title='Çok Kötü' data-value='1'>
+                                    <i class="material-icons md-36 mi-star">grade</i>
+                                </li>
+                                <li class='star' data-toggle="tooltip" data-placement="top" title='Kötü' data-value='2'>
+                                    <i class="material-icons md-36 mi-star">grade</i>
+                                </li>
+                                <li class='star' data-toggle="tooltip" data-placement="top" title='Orta' data-value='3'>
+                                    <i class="material-icons md-36 mi-star">grade</i>
+                                </li>
+                                <li class='star' data-toggle="tooltip" data-placement="top" title='İyi' data-value='4'>
+                                    <i class="material-icons md-36 mi-star">grade</i>
+                                </li>
+                                <li class='star' data-toggle="tooltip" data-placement="top" title='Çok İyi' data-value='5'>
+                                    <i class="material-icons md-36 mi-star">grade</i>
+                                </li>
+                            </ul>
+                        </div>
+                        <input type="hidden" name="rating" id="rating">
+                        <div class="form-group">
+                            <label for="evaluation-text" class="col-form-label">Yorumunuz:</label>
+                            <textarea name = "evaluation-text" id="evaluation-text" class="form-control"></textarea>
+                        </div>
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" id="evaluation-submit" class="btn btn-modal" form="createEvaluationOnPhase" value="Değerlendir">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="evaluation-detail" tabindex="-1" role="dialog" aria-labelledby="evaluation-detail-label" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="evaluation-detail-label">
+                        Değerlendirme Sonucu
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <h5>
+                                Mentör Değerlendirmesi
+                            </h5>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <h6 class="d-inline-block">Puan:</h6>
+                            <p id="mentor-rating"></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <h6>Yorum:</h6>
+                            <p id="mentor-evaluation"></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <hr/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <h5>
+                                Mentee Değerlendirmesi
+                            </h5>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <h6>Puan:</h6>
+                            <p id="mentee-rating"></p>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <h6>Yorum:</h6>
+                            <p id="mentee-evaluation"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-modal" data-dismiss="modal">Geri Dön</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id = "error-modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Hata</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-modal" data-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+        var phaseCount = 0;
+
+        $( "#phase-date" ).datepicker({
+            dateFormat:"dd/mm/yy"
+        });
+        $("#add-phase").on("click", function () {
+            phaseCount++;
+            var htmlString = ' <tr class="table-light d-flex">';
+            htmlString += ' <td class="col-4">';
+            htmlString += '<input type="text" class="form-control form-control-sm" name="phase-' + phaseCount + '-name">\n';
+            htmlString += '</td>\n';
+            htmlString += '<td class="col-4">\n';
+            htmlString += '<input class="datepicker form-control form-control-sm" name="phase-' + phaseCount + '-date" type="text" id="phase-date-' + phaseCount + '">\n';
+            htmlString += '</td>\n';
+            htmlString += '<td class="col-3">\n';
+            htmlString += '<div class="input-group input-group-sm">';
+            htmlString += '<input type="text" class="form-control form-control-sm text-right" name="phase-' + phaseCount + '-hour">\n';
+            htmlString += '<div class="input-group-prepend input-group-append">';
+            htmlString += '<span class="input-group-text" id="">:</span>\n';
+            htmlString += '</div>';
+            htmlString += '<input type="text" class="form-control form-control-sm" name="phase-' + phaseCount + '-minute">\n';
+            htmlString += '</div>';
+            htmlString += '</td>\n';
+            htmlString += '<td class="col-1">\n';
+            htmlString += '<a class="btn-delete" id ="delete-phase-' + phaseCount + '" data-toggle="tooltip" data-placement="right" title="Kaldır">\n';
+            htmlString += '<i class="material-icons red-color">remove_circle_outline</i>\n';
+            htmlString += '</a>\n';
+            htmlString += '</td>\n';
+            htmlString += '</tr>\n';
+
+            $("#phase-adding-area").append(htmlString);
+
+            var phaseDateId = '#phase-date-' + phaseCount;
+
+            $(phaseDateId).datepicker({
+                dateFormat:"dd/mm/yy"
+            });
+            $('[data-toggle="tooltip"]').tooltip();
+
+        });
+
+        $("#phase-table").on('click', '.btn-delete', function () {
+            phaseCount--;
+            $(this).closest("tr").find("td:eq(2)").find("a").tooltip("dispose");
+            $(this).closest("tr").remove();
+        });
+
+        $("#start-phases").on('click', function () {
+            $.ajax({
+                url:"/startPhases",
+                type:"post",
+                data:{
+                    mentorshipId: $("#mentorship-id").val()
+                },
+                success:function(data){
+                    if(data !== ""){
+                        $("#error-modal").find(".modal-body p").text(data);
+                        $("#error-modal").modal("show");
+                    }
+                    else{
+                        $( "#mentorship-table" ).load( " #mentorship-table > *" );
+                        $( "#phase" ).load( " #phase > *" );
+                    }
+                }
+            });
+        });
+
+        $("#mentorship-table").on('click', '.btn-finish', function () {
+            var phaseId = $(this).closest("tr").find("td:eq(0)").text();
+
+            $.ajax({
+                url:"/finishPhase",
+                type:"post",
+                data:{
+                    mentorshipId: $("#mentorship-id").val(),
+                    phaseId: phaseId
+                },
+                success:function(data){
+                    $("#phaseId").val(phaseId);
+                    $("#evaluation-modal").modal("show");
+                    $( "#mentorship-table" ).load( " #mentorship-table > *" );
+                    $( "#phase" ).load( " #phase > *" );
+                }
+            });
+        });
+
+        $("#mentorship-table").on('click', '.btn-evaluate', function () {
+            var phaseId = $(this).closest("tr").find("td:eq(0)").text();
+            $("#phaseId").val(phaseId);
+            $("#evaluation-modal").modal("show");
+        });
+
+        $("#mentorship-table").on('click', '.btn-evaluate-detail', function () {
+            var phaseId = $(this).closest("tr").find("td:eq(0)").text();
+            var name = $(this).closest("tr").find("td:eq(1)").text();
+            var status = $(this).closest("tr").find("td:eq(2)").text();
+            var menteeRating = $(this).closest("tr").find("td:eq(3)").text();
+            var mentorRating = $(this).closest("tr").find("td:eq(4)").text();
+            var menteeEvaluation = $(this).closest("tr").find("td:eq(5)").text();
+            var mentorEvaluation = $(this).closest("tr").find("td:eq(6)").text();
+
+            var modal = $("#evaluation-detail");
+            modal.find("#mentor-rating").text(mentorRating);
+            modal.find("#mentor-evaluation").text(mentorEvaluation);
+            modal.find("#mentee-rating").text(menteeRating);
+            modal.find("#mentee-evaluation").text(menteeEvaluation);
+
+            modal.modal("show");
+
+        });
+
+        $('#stars li').on('mouseover', function(){
+            var onStar = parseInt($(this).data('value'), 10); // The star currently mouse on
+
+            // Now highlight all the stars that's not after the current hovered star
+            $(this).parent().children('li.star').each(function(e){
+                if (e < onStar) {
+                    $(this).addClass('hover');
+                }
+                else {
+                    $(this).removeClass('hover');
+                }
+            });
+
+        }).on('mouseout', function(){
+            $(this).parent().children('li.star').each(function(e){
+                $(this).removeClass('hover');
+            });
+        });
+        $('#stars li').on('click', function(){
+            var onStar = parseInt($(this).data('value'), 10); // The star currently selected
+            var stars = $(this).parent().children('li.star');
+
+            for (i = 0; i < stars.length; i++) {
+                $(stars[i]).removeClass('selected');
+            }
+
+            for (i = 0; i < onStar; i++) {
+                $(stars[i]).addClass('selected');
+            }
+            //rating value
+            $("#rating").val(parseInt($('#stars li.selected').last().data('value'), 10));
+        })
+        $("#evaluation-modal").on("show.bs.modal",function () {
+            console.log("here");
+            var stars = $('#stars li').parent().children('li.star');
+
+            for (i = 0; i < stars.length; i++) {
+                $(stars[i]).removeClass('selected');
+                $(stars[i]).removeClass('hover');
+            }
+        })
+    })
+</script>
+<style>
+    .rating-stars ul {
+        list-style-type:none;
+        padding:0;
+    }
+    .rating-stars ul > li.star {
+        display:inline-block;
+    }
+    /* Idle State of the stars */
+    .rating-stars ul > li.star > i.mi-star {
+        color:#ccc; /* Color on idle state */
+    }
+
+    /* Hover state of the stars */
+    .rating-stars ul > li.star.hover > i.mi-star {
+        color:#FFCC36;
+        cursor: pointer;
+    }
+
+    /* Selected state of the stars */
+    .rating-stars ul > li.star.selected > i.mi-star {
+        color:#FF912C;
+    }
+    .title-area{
+        background: linear-gradient(60.64deg, #CB218E 0.01%, #5F72BE 99.98%, rgba(189, 50, 255, 0.358401) 99.99%, #6D19D8 100%);
+        color: white;
+        box-shadow: 0px 0px 20px 10px rgba(0, 0, 0, 0.2);
+    }
+    .title{
+        font: 60px "Roboto", sans-serif;
+        font-weight: 300;
+        padding: 1% 1% 1% 3.5%;
+    }
+    .table-title{
+        font: 24px "Poppins", sans-serif;
+        font-weight: 500;
+        padding: 17% 0 0 0;
+        color: #4B6076;
+    }
+    body{
+        background: #F7F7F7;
+    }
+    .table{
+        box-shadow: 0px 5px 20px 10px rgba(0, 0, 0, 0.15);
+        font: 15px "Poppins", sans-serif;
+    }
+    a{
+        vertical-align: middle;
+        color: white;
+    }
+
+    .table-button{
+        font: 20px "Poppins", sans-serif;
+        font-weight: 500;
+        color: #4B6076;
+        padding: 34% 0 0 0;
+
+    }
+    a:hover{
+        text-decoration: none;
+        color: #9AAEFF;
+        cursor: pointer;
+    }
+    .material-icons{
+        vertical-align: middle;
+    }
+    .material-icons.md-36 {
+        font-size: 36px;
+    }
+
+    .material-icons:hover{
+        color: #9AAEFF;
+    }
+    i.green-color{
+        color:#77DD77 ;
+    }
+    i.red-color{
+        color:#c23b22;
+    }
+    .button-text{
+        font: 20px "Poppins", sans-serif;
+        font-weight: 300;
+        padding: 2% 1.25% 0 0;
+        vertical-align: middle;
+    }
+    .sub-title{
+        font: 24px "Poppins", sans-serif;
+        font-weight: 500;
+        color: #4B6076;
+        padding: 17% 0 0 30%;
+    }
+    .personal-info ul{
+        padding-left: 30%;
+        line-height: 13px;
+    }
+    .personal-info li {
+        list-style: none;
+
+    }
+    .personal-info {
+        font-family: "Poppins", sans-serif;
+    }
+     .personal-info li span {
+        color: #4B6076;
+        width: 40%;
+        float: left;
+        font-weight: bold;
+    }
+     .personal-info li p {
+    }
+    .btn-modal{
+        background-color: #5F72BE;
+        color:white;
+    }
+    .btn-modal:hover{
+        background-color: #7291be;
+        color:white;
+    }
+    .btn-finish{
+        background-color: Transparent;
+        background-repeat:no-repeat;
+        border: none;
+        cursor:pointer;
+        overflow: hidden;
+        outline:none;
+    }
+    .btn-finish:hover{
+       color: #9AAEFF;
+    }
+    .btn-finish:focus{
+        outline: 0;
+    }
+    .btn-evaluate{
+        background-color: Transparent;
+        background-repeat:no-repeat;
+        border: none;
+        cursor:pointer;
+        overflow: hidden;
+        outline:none;
+    }
+    .btn-evaluate:hover{
+        color: #9AAEFF;
+    }
+    .btn-evaluate:focus{
+        outline: 0;
+    }
+    .btn-evaluate-detail{
+        background-color: Transparent;
+        background-repeat:no-repeat;
+        border: none;
+        cursor:pointer;
+        overflow: hidden;
+        outline:none;
+    }
+    .btn-evaluate-detail:hover{
+        color: #9AAEFF;
+    }
+    .btn-evaluate-detail:focus{
+        outline: 0;
+    }
+    .title a{
+        text-decoration: none;
+    }
+    .title a:hover{
+        text-decoration: none;
+        cursor: pointer;
+        color: white;
+    }
+    @media only screen and (max-height:768px){
+        .sub-title{
+            font: 24px "Poppins", sans-serif;
+            font-weight: 500;
+            color: #4B6076;
+            padding: 10% 0 0 30%;
+        }
+        .table-title{
+            font: 24px "Poppins", sans-serif;
+            font-weight: 500;
+            padding: 10% 0 0 0;
+            color: #4B6076;
+        }
+        .table-button{
+            font: 20px "Poppins", sans-serif;
+            font-weight: 500;
+            color: #4B6076;
+            padding: 20% 0 0 0;
+
+        }
+        .personal-info li span {
+            color: #4B6076;
+            width: 50%;
+            float: left;
+            font-weight: bold;
+        }
+    }
+
+</style>

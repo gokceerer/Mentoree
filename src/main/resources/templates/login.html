@@ -1,0 +1,238 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://use.fontawesome.com/52c4fe807b.js"></script>
+    <meta charset="UTF-8">
+    <title>Mentoree</title>
+    <meta http-equiv="Content-Type" content="text/html, width=device-width, initial-scale=1.0" />
+</head>
+<body>
+    <div id="title-area">
+        <div class="big-text">Mentoree</div>
+        <div>Öğrenmek ve öğretmek için hiçbir zaman geç değil!</div>
+    </div>
+    <div id="login-area">
+        <div id="cornered-rectangle">
+            <div id="form-area">
+                <form th:action="@{/login}" method="post">
+                    <h1 class="padding-bottom-10px">Merhaba!</h1>
+                    <h3>Hesabınıza giriş yapın.</h3>
+                    <div th:if="${param.error}" class="alert alert-error">
+                        Kullanıcı adınız veya şifreniz yanlış.
+                    </div>
+                    <div th:if="${param.logout}" class="alert alert-error">
+                        Çıkış yaptınız.
+                    </div>
+                    <p>E-posta:</p>
+                    <input type="text" name="username">
+                    <p>Şifre: </p>
+                    <input type="password"  name="password">
+                    <div class="padding-top-30px">
+                        <span class="icon-input-btn">
+                            <span class="fa fa-google" aria-hidden="true"></span>
+                            <input onClick="window.location.href='/oauth2/authorization/google'"  type="button" id="login-with-google-button" value="Google ile Giriş Yap"/>
+                        </span>
+
+                    </div>
+                    <div class="padding-top-10px">
+                        <input id="login-button" type="submit" value="Giriş Yap"/>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+
+</body>
+</html>
+<style>
+    *{
+        box-sizing: border-box;
+    }
+    html{
+        height:auto;
+        width: auto;
+        min-height: 100%;
+    }
+    body{
+        height: 100%;
+        overflow: hidden;
+        background: linear-gradient(60.64deg, #CB218E 0.01%, #5F72BE 99.98%, rgba(189, 50, 255, 0.358401) 99.99%, #6D19D8 100%);
+    }
+    #cornered-rectangle{
+        display: inline-block;
+        width: 650px;
+        height: 750px;
+        background: #FCFCFC;
+        box-shadow: 0px 0px 61px 43px rgba(0, 0, 0, 0.2);
+        border-radius: 139px;
+    }
+    #form-area{
+        position: relative;
+        text-align: center;
+        top: 15%;
+    }
+    input[type=text]{
+
+        width: 400px;
+        height: 40px;
+        padding-left: 20px;
+        background: #FFFFFF;
+        box-shadow: 0px 0px 24px 10px rgba(120, 96, 179, 0.3);
+        border-radius: 139px;
+        border: 0;
+        font: 20px "Poppins", sans-serif;
+
+    }
+    input[type=text]:focus{
+        outline:none;
+        box-shadow: 0px 0px 24px 10px rgba(120, 96, 179, 0.69);
+    }
+    input[type=password]{
+
+        width: 400px;
+        height: 40px;
+        padding-left: 20px;
+        background: #FFFFFF;
+        box-shadow: 0px 0px 24px 10px rgba(120, 96, 179, 0.3);
+        border-radius: 139px;
+        border: 0;
+        font: 20px "Poppins", sans-serif;
+
+    }
+    input[type=password]:focus{
+        outline:none;
+        box-shadow: 0px 0px 24px 10px rgba(120, 96, 179, 0.69);
+    }
+    #login-button{
+        width: 300px;
+        height: 40px;
+        color: white;
+        font: 20px "Poppins", sans-serif;
+        background: linear-gradient(83.2deg, rgba(203, 33, 142, 0.75) 5.51%, rgba(109, 25, 216, 0.75) 114.12%);
+        box-shadow: 0px 0px 24px 10px rgba(120, 96, 179, 0.3);
+        border-radius: 139px;
+        border: 0;
+    }
+    #login-button:hover{
+        box-shadow: 0px 0px 24px 10px rgba(120, 96, 179, 0.69);
+    }
+    #login-button:focus{
+        outline:none;
+    }
+    .padding-top-30px{
+        padding-top: 50px;
+    }
+    .padding-top-10px{
+        padding-top: 20px;
+    }
+    .padding-bottom-10px{
+        padding-bottom: 10px;
+    }
+
+    #login-with-google-button{
+        box-shadow: 0px 0px 24px 10px rgba(120, 96, 179, 0.3);
+        background-color:white;
+        border-radius: 139px;
+        border: 0;
+        width: 300px;
+        height: 40px;
+        font: 20px "Poppins", sans-serif;
+    }
+    #login-with-google-button:hover{
+        box-shadow: 0px 0px 24px 10px rgba(120, 96, 179, 0.69);
+    }
+    #login-with-google-button:focus{
+        outline:none;
+    }
+    .icon-input-btn{
+        display: inline-block;
+        position: relative;
+    }
+    .icon-input-btn input[type="button"]{
+        padding-left: 7%;
+    }
+    .icon-input-btn .fa-google{
+        display: inline-block;
+        position: absolute;
+        left: 12%;
+        top: 30%;
+    }
+
+    h1{
+        font: 35px "Poppins", sans-serif;
+        font-weight: 500;
+
+    }
+    h3{
+        font: 20px "Poppins", sans-serif;
+        font-weight: 300;
+
+    }
+    p{
+        font: 20px "Poppins", sans-serif;
+    }
+    #title-area{
+        width: 50%;
+        float: left;
+        color: white;
+        font: 30px "Roboto", sans-serif;
+        font-weight: 300;
+        padding-top: 350px;
+        padding-left: 150px;
+    }
+    #login-area{
+        width: 50%;
+        float: left;
+        text-align:center;
+        padding-top: 100px;
+
+    }
+    .big-text{
+        font: 96px "Roboto", sans-serif;
+        font-weight: 300;
+
+    }
+    .alert-error{
+        font: 20px "Poppins", sans-serif;
+        color: rgba(255, 0, 0, 0.71);
+    }
+    @media only screen and (max-height:850px){
+        #cornered-rectangle{
+            width: 450px;
+            height: 610px;
+            border-radius: 70px;
+        }
+
+        input[type=text]{
+            width: 275px;
+            height: 40px;
+            border-radius: 70px;
+        }
+        input[type=password]{
+            width: 275px;
+            height: 40px;
+            border-radius: 70px;
+        }
+
+        input[type=submit]{
+            width: 275px;
+            height: 40px;
+            border-radius: 70px;
+        }
+
+        #login-area{
+            padding-top: 50px;
+        }
+
+        #title-area{
+            font-size: 24px;
+            padding-top: 250px;
+        }
+        #form-area{
+            top: 5%;
+        }
+    }
+</style>

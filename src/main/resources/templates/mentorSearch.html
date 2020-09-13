@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script type="text/javascript" th:src="@{/js/lib/jquery-3.5.1.js}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script type="text/javascript" th:src="@{/js/lib/bootstrap.min.js}"></script>
+    <title>Mentör Arama</title>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row title-area">
+        <div class="col-5 title">
+            <a href="/dashboard/user">Mentoree</a>
+        </div>
+
+        <div class="col-5 button-text text-right">
+            <a href="/dashboard/user">
+                <i class="material-icons md-36">people</i>
+                Süreçlerim
+            </a>
+        </div>
+        <div class="col-2 button-text text-center">
+            <a href="/logout">
+                <i class="material-icons md-36">exit_to_app</i>
+                Çıkış Yap
+            </a>
+        </div>
+
+    </div>
+
+
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-2 table-title">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Mentör ara..." aria-label="Mentör ara..." aria-describedby="button-addon2" id="searchQuery">
+                <div class="input-group-append">
+                    <button id="search-button" class="btn btn-outline-secondary"><i class="material-icons md-24">search</i></button>
+                </div>
+            </div>
+        </div>
+        <div class="col-2 table-title">
+            <select class="custom-select" id="maintopics" name="maintopic">
+                <option selected value="-1">Konu Seçiniz</option>
+                <option th:object="${topics}" th:each="topic: ${topics}" th:value="${topic.getId()}" th:text="${topic.getName()}"></option>
+            </select>
+        </div>
+        <div class="col-2 table-title">
+            <select class="custom-select" id="subtopics" name="subtopics">
+                <option selected value="-1">Alt Konu Seçiniz</option>
+            </select>
+        </div>
+        <div class="col-3"></div>
+    </div>
+
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6">
+            <div>
+                <table class="table table-hover mx-auto" id="mentor-table" >
+                    <thead>
+                    <tr class="table-light">
+                        <th scope="col">Ad</th>
+                        <th scope="col">Soyadı</th>
+                        <th scope="col">Konu</th>
+                        <th scope="col">Alt Konu</th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    <tbody id="search-list">
+                    <div th:object="${mentors}" th:each="mentor : ${mentors}">
+                        <tr class="table-light">
+                            <td th:text="${mentor.getName()}"></td>
+                            <td th:text="${mentor.getSurname()}"></td>
+                            <td th:text="${mentor.getTopic()}"></td>
+                            <td th:text="${mentor.getSubtopic()}"></td>
+                            <td style="display:none" th:text="${mentor.getDescription()}"></td>
+                            <td style="display:none" th:text="${mentor.get_id()}"></td>
+
+                            <td>
+                                <a id="createMentorship" data-toggle="tooltip" data-placement="top" title="Mentörlük İsteği Gönder">
+                                    <i class="material-icons md-24 md-dark">person_add_alt_1</i>
+                                </a>
+                            </td>
+                            <td>
+                                <a id="mentorDetail" data-toggle="tooltip" data-placement="top" title="Mentör Detayı">
+                                    <i class="material-icons md-24 md-dark">info</i>
+                                </a>
+                            </td>
+                        </tr>
+                    </div>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <div class = "col-3 mx-auto"></div>
+    </div>
+
+    <div class="modal fade" id="mentor-detail" tabindex="-1" role="dialog" aria-labelledby="mentor-detail-label" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mentor-detail-label">
+                        <i class="material-icons md-24 md-dark">people</i>
+                        Mentör Detayı
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <label for="mentor-name"><b>Ad:</b></label>
+                            <p id="mentor-name"></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <label for="mentor-surname"><b>Soyadı:</b></label>
+                            <p id="mentor-surname"></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <label for="mentor-topic"><b>Konu:</b></label>
+                            <p id="mentor-topic"></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <label for="mentor-subtopic"><b>Alt Konu:</b></label>
+                            <p id="mentor-subtopic"></p>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <label for="mentor-description"><b>Açıklama:</b></label>
+                            <p id="mentor-description"></p>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-modal" data-dismiss="modal">Geri Dön</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="error-modal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="errorModalLabel">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="error-text">
+                    <p id="error-message"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-modal" data-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+
+        $("#searchQuery").on("blur",function () {
+            if( !$(this).val() ) {
+                $("#search-list").empty();
+                $.ajax({
+                    url:"/searchResultsByText",
+                    type:"get",
+                    data:{
+                        textQuery: $("#searchQuery").val()
+                    },
+                    success:function (data) {
+                        data.forEach(function (item) {
+                            var htmlString = '<tr class="table-light">';
+                            htmlString += '<td>' + item.name + '</td>';
+                            htmlString += '<td>' + item.surname + '</td>';
+                            htmlString += '<td>' + item.topic + '</td>';
+                            htmlString += '<td>' + item.subtopic + '</td>';
+                            htmlString += '<td style="display:none">' + item.description + '</td>';
+                            htmlString += '<td style="display:none">' + item._id + '</td>';
+                            htmlString += '<td>';
+                            htmlString += '<a id="createMentorship" data-toggle="tooltip" data-placement="top" title="Mentörlük İsteği Gönder">';
+                            htmlString += '<i class="material-icons md-24 md-dark">person_add_alt_1</i>';
+                            htmlString += '</a>';
+                            htmlString += '</td>';
+                            htmlString += '<td>';
+                            htmlString += '<a id="mentorDetail" data-toggle="tooltip" data-placement="top" title="Mentör Detayı">';
+                            htmlString += '<i class="material-icons md-24 md-dark">info</i>';
+                            htmlString += '</a>';
+                            htmlString += '</td>';
+                            htmlString += '</tr>';
+
+                            $(htmlString).appendTo($("#search-list"));
+                            $('[data-toggle="tooltip"]').tooltip()
+                        })
+                    }
+                })
+            }
+        });
+        $("#search-button").on("click", function () {
+                $("#search-list").empty();
+                $.ajax({
+                    url:"/searchResultsByText",
+                    type:"get",
+                    data:{
+                        textQuery: $("#searchQuery").val()
+                    },
+                    success:function (data) {
+                        data.forEach(function (item) {
+                            var htmlString = '<tr class="table-light">';
+                            htmlString += '<td>' + item.name + '</td>';
+                            htmlString += '<td>' + item.surname + '</td>';
+                            htmlString += '<td>' + item.topic + '</td>';
+                            htmlString += '<td>' + item.subtopic + '</td>';
+                            htmlString += '<td style="display:none">' + item.description + '</td>';
+                            htmlString += '<td style="display:none">' + item._id + '</td>';
+                            htmlString += '<td>';
+                            htmlString += '<a id="createMentorship" data-toggle="tooltip" data-placement="top" title="Mentörlük İsteği Gönder">';
+                            htmlString += '<i class="material-icons md-24 md-dark">person_add_alt_1</i>';
+                            htmlString += '</a>';
+                            htmlString += '</td>';
+                            htmlString += '<td>';
+                            htmlString += '<a id="mentorDetail" data-toggle="tooltip" data-placement="top" title="Mentör Detayı">';
+                            htmlString += '<i class="material-icons md-24 md-dark">info</i>';
+                            htmlString += '</a>';
+                            htmlString += '</td>';
+                            htmlString += '</tr>';
+
+                            $(htmlString).appendTo($("#search-list"));
+                            $('[data-toggle="tooltip"]').tooltip()
+                        })
+                    }
+                })
+            });
+
+        $("#mentor-table").on("click", "#mentorDetail", function (e) {
+            e.preventDefault();
+            var currentRow = $(this).closest("tr");
+            var name = currentRow.find("td:eq(0)").text();
+            var surname = currentRow.find("td:eq(1)").text();
+            var topic = currentRow.find("td:eq(2)").text();
+            var subtopic = currentRow.find("td:eq(3)").text();
+            var description = currentRow.find("td:eq(4)").text();
+
+            var modal = $("#mentor-detail");
+            modal.find("#mentor-name").text(name);
+            modal.find("#mentor-surname").text(surname);
+            modal.find("#mentor-topic").text(topic);
+            modal.find("#mentor-subtopic").text(subtopic);
+            modal.find("#mentor-description").text(description);
+
+            modal.modal("show");
+        });
+
+        $("#maintopics").on("change",function () {
+            $("#subtopics").html("");
+            $("#search-list").empty();
+
+            $('<option selected value="-1">Alt Konu Seçiniz</option>\n').appendTo($("#subtopics"));
+
+            $.ajax({
+                url:"/getSubtopics",
+                type:"post",
+                data: {
+                    topicid: $("#maintopics").val()
+                },
+                success : function(data) {
+                    data.forEach(function (item) {
+                        var htmlString = '<option value="' + item.id +'">' + item.name + '</option>';
+                        $(htmlString).appendTo($("#subtopics"));
+
+                    })
+                },
+            });
+
+            $.ajax({
+                url:"/searchResultsByTopic",
+                type:"get",
+                data:{
+                    topicid: $("#maintopics").val()
+                },
+                success:function (data) {
+                    data.forEach(function (item) {
+                        var htmlString = '<tr class="table-light">';
+                        htmlString += '<td>' + item.name + '</td>';
+                        htmlString += '<td>' + item.surname + '</td>';
+                        htmlString += '<td>' + item.topic + '</td>';
+                        htmlString += '<td>' + item.subtopic + '</td>';
+                        htmlString += '<td style="display:none">' + item.description + '</td>';
+                        htmlString += '<td style="display:none">' + item._id + '</td>';
+                        htmlString += '<td>';
+                        htmlString += '<a id="createMentorship" data-toggle="tooltip" data-placement="top" title="Mentörlük İsteği Gönder">';
+                        htmlString += '<i class="material-icons md-24 md-dark">person_add_alt_1</i>';
+                        htmlString += '</a>';
+                        htmlString += '</td>';
+                        htmlString += '<td>';
+                        htmlString += '<a id="mentorDetail" data-toggle="tooltip" data-placement="top" title="Mentör Detayı">';
+                        htmlString += '<i class="material-icons md-24 md-dark">info</i>';
+                        htmlString += '</a>';
+                        htmlString += '</td>';
+                        htmlString += '</tr>';
+
+                        $(htmlString).appendTo($("#search-list"));
+                        $('[data-toggle="tooltip"]').tooltip()
+
+                    })
+                }
+            })
+        });
+        $("#subtopics").on("change", function () {
+            $("#search-list").empty();
+            $.ajax({
+                url:"/searchResultsBySubtopic",
+                type:"get",
+                data:{
+                    topicid: $("#maintopics").val(),
+                    subtopicid: $("#subtopics").val()
+                },
+                success:function (data) {
+                    data.forEach(function (item) {
+                        var htmlString = '<tr class="table-light">';
+                        htmlString += '<td>' + item.name + '</td>';
+                        htmlString += '<td>' + item.surname + '</td>';
+                        htmlString += '<td>' + item.topic + '</td>';
+                        htmlString += '<td>' + item.subtopic + '</td>';
+                        htmlString += '<td style="display:none">' + item.description + '</td>';
+                        htmlString += '<td style="display:none">' + item._id + '</td>';
+                        htmlString += '<td>';
+                        htmlString += '<a id="createMentorship" data-toggle="tooltip" data-placement="top" title="Mentörlük İsteği Gönder">';
+                        htmlString += '<i class="material-icons md-24 md-dark">person_add_alt_1</i>';
+                        htmlString += '</a>';
+                        htmlString += '</td>';
+                        htmlString += '<td>';
+                        htmlString += '<a id="mentorDetail" data-toggle="tooltip" data-placement="top" title="Mentör Detayı">';
+                        htmlString += '<i class="material-icons md-24 md-dark">info</i>';
+                        htmlString += '</a>';
+                        htmlString += '</td>';
+                        htmlString += '</tr>';
+
+                        $(htmlString).appendTo($("#search-list"));
+                        $('[data-toggle="tooltip"]').tooltip()
+
+                    })
+                },
+            })
+        });
+        $("#mentor-table").on("click", "#createMentorship", function (e) {
+            e.preventDefault();
+            var currentRow = $(this).closest("tr");
+            var mentorNOSQLId = currentRow.find("td:eq(5)").text();
+
+            $.ajax({
+                url:"/createMentorship",
+                type:"post",
+                data:{
+                    mentorNOSQLId: mentorNOSQLId,
+                },
+                success:function (data) {
+                    var modal = $("#error-modal");
+                    modal.find("#error-message").text(data);
+                    modal.modal("show");
+                },
+            });
+
+        });
+    })
+
+</script>
+
+<style>
+    .title-area{
+        background: linear-gradient(60.64deg, #CB218E 0.01%, #5F72BE 99.98%, rgba(189, 50, 255, 0.358401) 99.99%, #6D19D8 100%);
+        color: white;
+        box-shadow: 0px 0px 20px 10px rgba(0, 0, 0, 0.2);
+    }
+    .title{
+        font: 60px "Roboto", sans-serif;
+        font-weight: 300;
+        padding: 1% 1% 1% 3.5%;
+    }
+    .table-title{
+        font: 24px "Poppins", sans-serif;
+        font-weight: 500;
+        padding-top: 1%;
+        padding-bottom: 1%;
+        color: #4B6076;
+    }
+    body{
+        background: #F7F7F7;
+    }
+    .table{
+        box-shadow: 0px 5px 20px 10px rgba(0, 0, 0, 0.15);
+        font: 15px "Poppins", sans-serif;
+        vertical-align: middle;
+    }
+
+    a{
+        vertical-align: middle;
+        color: white;
+    }
+    a:hover{
+        text-decoration: none;
+        color: #9AAEFF;
+        cursor: pointer;
+    }
+    .material-icons{
+        vertical-align: middle;
+    }
+    .material-icons:hover{
+        color: #9AAEFF;
+    }
+    .button-text{
+        font: 20px "Poppins", sans-serif;
+        font-weight: 300;
+        padding: 2% 1.25% 0 0;
+        vertical-align: middle;
+    }
+    .btn-modal{
+        background-color: #5F72BE;
+        color:white;
+    }
+    .btn-modal:hover{
+        background-color: #7291be;
+        color:white;
+    }
+    #search-button i:hover{
+        color:white;
+    }
+    .title a{
+        text-decoration: none;
+    }
+    .title a:hover{
+        text-decoration: none;
+        cursor: pointer;
+        color: white;
+    }
+</style>

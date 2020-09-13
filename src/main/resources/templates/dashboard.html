@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+        <title>Dashboard</title>
+
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script type="text/javascript" th:src="@{/js/lib/jquery-3.5.1.js}"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script type="text/javascript" th:src="@{/js/lib/bootstrap.min.js}"></script>
+
+
+    </head>
+    <body>
+
+    <div class="container-fluid">
+        <div class="row title-area" th:unless="${user.isAdmin()}">
+            <div class="col-5 title">
+                <a href="/dashboard/user">Mentoree</a>
+            </div>
+
+            <div class="col-3 button-text text-right">
+                <a href="/mentorApplication">
+                    <i class="material-icons md-36">supervisor_account</i>
+                    Mentörlük Başvurularım
+                </a>
+            </div>
+
+            <div class="col-2 button-text text-center">
+                <a href="/mentorSearch">
+                    <i class="material-icons md-36">search</i>
+                    Mentör Arama
+                </a>
+            </div>
+
+            <div class="col-2 button-text text-center">
+                <a href="/logout">
+                    <i class="material-icons md-36">exit_to_app</i>
+                    Çıkış Yap
+                </a>
+            </div>
+        </div>
+        <div class="row title-area" th:if="${user.isAdmin()}">
+            <div class="col-5 title">
+                <a href="/dashboard/admin">Mentoree</a>
+            </div>
+            <div class="col-5 button-text text-right">
+                <a href="/editTopics">
+                    <i class="material-icons md-36">add_circle_outline</i>
+                    Mentörlük Konularını Düzenle
+                </a>
+            </div>
+            <div class="col-2 button-text text-center">
+                <a href="/login?logout">
+                    <i class="material-icons md-36">exit_to_app</i>
+                    Çıkış Yap
+                </a>
+            </div>
+        </div>
+        <div class="row greet-text" th:object="${user}" th:text="'Merhaba ' + ${user.getName()} + ','"></div>
+
+        <div class="row" th:unless="${user.isAdmin()}">
+            <div class="col-6 table-title">
+                Mentörlük süreçleriniz:
+            </div>
+            <div class="col-6 table-title">
+                Menteelik süreçleriniz:
+            </div>
+        </div>
+
+        <div class="row" th:if="${user.isAdmin()}">
+            <table class="table table-hover col-5 mx-auto" id="application-table">
+                <thead>
+                <tr class="table-light">
+                    <th scope="col">Ad</th>
+                    <th scope="col">Soyad</th>
+                    <th scope="col">Konu</th>
+                    <th scope="col">Alt Konu</th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+
+                <div th:object="${applications}" th:each="mentorshipApplication: ${applications}">
+                    <tr class="table-light" th:if="${mentorshipApplication.getState().getDisplayValue() == 'Beklemede'}">
+                        <td th:text="${mentorshipApplication.getUser().getName()}"></td>
+                        <td th:text="${mentorshipApplication.getUser().getSurname()}"></td>
+                        <td th:text="${mentorshipApplication.getTopic().getName()}"></td>
+                        <td th:text="${mentorshipApplication.getSubtopic().getName()}"></td>
+                        <td style="display:none" th:text="${mentorshipApplication.getDescription()}"></td>
+
+                        <td>
+                            <a id="applicationDetail" class ="btn-application-detail" data-toggle="tooltip" data-placement="top" title="Başvuru Detayı">
+                                <i class="material-icons md-24 md-dark">info</i>
+                            </a>
+                        </td>
+                        <td>
+                            <a class = "btn-acceptApplication" th:href="'/acceptApplication/'+${mentorshipApplication.getId()}" data-toggle="tooltip" data-placement="top" title="Onayla">
+                                <i class="material-icons md-24 md-dark">done</i>
+                            </a>
+                        </td>
+                        <td>
+                            <a class = "btn-rejectApplication" th:href="'/rejectApplication/'+${mentorshipApplication.getId()}" data-toggle="tooltip" data-placement="top" title="Reddet">
+                                <i class="material-icons md-24 md-dark">close</i>
+                            </a>
+                        </td>
+
+                    </tr>
+                </div>
+                </tbody>
+
+            </table>
+            <div class = "col-5 mx-auto"></div>
+        </div>
+        <!--Modal for application accept verification-->
+        <div class="modal fade" tabindex="-1" role="dialog" id="acceptApplicationVerification">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Başvuruyu Onayla</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Başvuruyu onaylamak istediğinizden emin misiniz?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Geri Dön</button>
+                        <a href="" type="button" class="btn btn-modal" id="button-accept" >Onayla</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Modal for application delete verification-->
+
+        <div class="modal fade" tabindex="-1" role="dialog" id="rejectApplicationModal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Başvuruyu Reddet</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Başvuruyu reddetmek istediğinizden emin misiniz?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Geri Dön</button>
+                        <a href="" type="button" class="btn btn-modal" id="button-reject" >Reddet</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="application-detail" tabindex="-1" role="dialog" aria-labelledby="application-detail-label" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="application-detail-label">
+                            <i class="material-icons md-24 md-dark">people</i>
+                            Başvuru Detayı
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <label for="applicant-name"><b>Ad:</b></label>
+                                <p id="applicant-name"></p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <label for="applicant-surname"><b>Soyadı:</b></label>
+                                <p id="applicant-surname"></p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <label for="applicant-topic"><b>Konu:</b></label>
+                                <p id="applicant-topic"></p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <label for="applicant-subtopic"><b>Alt Konu:</b></label>
+                                <p id="applicant-subtopic"></p>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <label for="applicant-description"><b>Açıklama:</b></label>
+                                <p id="applicant-description"></p>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-modal" data-dismiss="modal">Geri Dön</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" th:unless="${user.isAdmin()}">
+                <table class="table table-hover col-5 mx-auto">
+                    <thead>
+                    <tr class="table-light">
+                        <th scope="col">Mentee</th>
+                        <th scope="col">Konu</th>
+                        <th scope="col">Alt Konu</th>
+                        <th scope="col">Faz</th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    <div th:object="${user}" th:each="mentor: ${user.getMentoring()}">
+                        <tbody th:each="mentorship: ${mentor.getMentorships()}">
+                        <tr class="table-light">
+                            <td th:text="${mentorship.getMentee().getUser().getName()} + ' ' + ${mentorship.getMentee().getUser().getSurname()}"></td>
+                            <td th:text="${mentorship.getTopic().getName()}"></td>
+                            <td th:text="${mentorship.getSubtopic().getName()}"></td>
+                            <td th:if="${mentorship.getCurrentPhase() == null}" th:text="Başlamadı"></td>
+                            <td th:unless="${mentorship.getCurrentPhase() == null}" th:text="${mentorship.getCurrentPhase()}"></td>
+
+                            <td>
+                                <a th:href="'/mentorshipDetail/'+${mentorship.getId()}" data-toggle="tooltip" data-placement="top" title="Mentörlük Detayı">
+                                    <i class="material-icons md-24 md-dark">info</i>
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </div>
+                </table>
+
+                <table class="table table-hover col-5 mx-auto">
+                    <thead>
+                    <tr class="table-light">
+                        <th scope="col">Mentor</th>
+                        <th scope="col">Konu</th>
+                        <th scope="col">Alt Konu</th>
+                        <th scope="col">Faz</th>
+                        <th scope="col"></th>
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <div th:object="${user}" th:each="mentor: ${user.getMenteeing()}">
+                        <div th:each="mentorship: ${mentor.getMentorships()}">
+                            <tr class="table-light">
+                                <td th:text="${mentorship.getMentor().getUser().getName()} + ' ' + ${mentorship.getMentor().getUser().getSurname()}"></td>
+                                <td th:text="${mentorship.getTopic().getName()}"></td>
+                                <td th:text="${mentorship.getSubtopic().getName()}"></td>
+                                <td th:if="${mentorship.getCurrentPhase() == null}" th:text="Başlamadı"></td>
+                                <td th:unless="${mentorship.getCurrentPhase() == null}" th:text="${mentorship.getCurrentPhase()}"></td>
+                                <td>
+                                    <a th:href="'/mentorshipDetail/'+${mentorship.getId()}" data-toggle="tooltip" data-placement="top" title="Mentörlük Detayı">
+                                        <i class="material-icons md-24 md-dark">info</i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </div>
+
+                    </div>
+                    </tbody>
+
+                </table>
+        </div>
+    </div>
+    </body>
+
+</html>
+
+<script>
+    $('[data-toggle="tooltip"]').tooltip();
+
+    $('.btn-acceptApplication').on('click', function (e) {
+        e.preventDefault();
+        var href =$(this).attr('href');
+        $('#button-accept').attr('href',href);
+        $('#acceptApplicationVerification').modal();
+    });
+    $('.btn-rejectApplication').on('click', function (e) {
+        e.preventDefault();
+        var href =$(this).attr('href');
+        $('#button-reject').attr('href',href);
+        $('#rejectApplicationModal').modal();
+    });
+
+    $("#application-table").on('click',"#applicationDetail", function (e) {
+        e.preventDefault();
+        var currentRow = $(this).closest("tr");
+        var name = currentRow.find("td:eq(0)").text();
+        var surname = currentRow.find("td:eq(1)").text();
+        var topic = currentRow.find("td:eq(2)").text();
+        var subtopic = currentRow.find("td:eq(3)").text();
+        var description = currentRow.find("td:eq(4)").text();
+
+        var modal = $("#application-detail");
+        modal.find("#applicant-name").text(name);
+        modal.find("#applicant-surname").text(surname);
+        modal.find("#applicant-topic").text(topic);
+        modal.find("#applicant-subtopic").text(subtopic);
+        modal.find("#applicant-description").text(description);
+
+        modal.modal("show");
+
+    })
+</script>
+

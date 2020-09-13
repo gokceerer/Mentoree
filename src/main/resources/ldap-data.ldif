@@ -1,0 +1,75 @@
+dn: dc=mentoree,dc=org
+objectclass: top
+objectclass: domain
+objectclass: extensibleObject
+dc: mentoree
+
+dn: ou=groups,dc=mentoree,dc=org
+objectclass: top
+objectclass:organizationalUnit
+ou: groups
+
+dn: ou=people,dc=mentoree,dc=org
+objectclass: top
+objectclass: organizationalUnit
+ou: people
+
+dn: ou=roles,dc=mentoree,dc=org
+objectclass: top
+objectclass: organizationalUnit
+ou: roles
+
+dn: uid=mentoree.user1@gmail.com,ou=people,dc=mentoree,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Ben
+sn: Alex
+uid: mentoree.user1@gmail.com
+userPassword: $2a$10$c6bSeWPhg06xB1lvmaWNNe4NROmZiSpYhlocU/98HNr2MhIOiSt36
+
+dn: uid=mentoree.user2@gmail.com,ou=people,dc=mentoree,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Bob
+sn: Hamilton
+uid: mentoree.user2@gmail.com
+userPassword: $2y$12$kRr2CO7uz66veXsN.GCXy.OuRFdv79A1t79t44PTVF.luMSIQKp6m
+
+dn: uid=mentoree.master@gmail.com,ou=people,dc=mentoree,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Admin
+sn: admin
+uid: mentoree.master@gmail.com
+userPassword: $2y$12$5mvLyJvUIZ/NfLTJZlaPj.OiIuGJ/fxqDMSJ5./HJ/Jhb0UQcw2J2
+
+dn: uid=mentoree.user3@gmail.com,ou=people,dc=mentoree,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Jennifer
+sn: Heather
+uid: mentoree.user3@gmail.com
+userPassword: $2y$12$i.sxTsFlt4N27AeRPATQPuScfnTjNXEtLfNKGBhUf3e6KpEHYOTqW
+
+dn: cn=ADMIN, ou=roles, dc=mentoree,dc=org
+objectclass:top
+objectclass:groupOfUniqueNames
+cn: ADMIN
+uniqueMember: uid=mentoree.master@gmail.com,ou=people,dc=mentoree,dc=org
+
+dn: cn=USER, ou=roles, dc=mentoree,dc=org
+objectclass:top
+objectclass:groupOfUniqueNames
+cn: USER
+uniqueMember: uid=mentoree.user1@gmail.com,ou=people,dc=mentoree,dc=org
+uniqueMember: uid=mentoree.user2@gmail.com,ou=people,dc=mentoree,dc=org
+uniqueMember: uid=mentoree.user3@gmail.com,ou=people,dc=mentoree,dc=org
+

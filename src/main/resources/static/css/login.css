@@ -1,0 +1,154 @@
+*{
+    box-sizing: border-box;
+}
+html{
+    height:auto;
+    width: auto;
+    min-height: 100%;
+}
+body{
+    height: 100%;
+    overflow: hidden;
+    background: linear-gradient(60.64deg, #CB218E 0.01%, #5F72BE 99.98%, rgba(189, 50, 255, 0.358401) 99.99%, #6D19D8 100%);
+}
+#cornered-rectangle{
+    display: inline-block;
+    width: 650px;
+    height: 750px;
+    background: #FCFCFC;
+    box-shadow: 0px 0px 61px 43px rgba(0, 0, 0, 0.2);
+    border-radius: 139px;
+}
+#form-area{
+    position: relative;
+    text-align: center;
+    top: 15%;
+}
+input[type=text]{
+
+    width: 400px;
+    height: 40px;
+    padding-left: 20px;
+    background: #FFFFFF;
+    box-shadow: 0px 0px 24px 10px rgba(120, 96, 179, 0.3);
+    border-radius: 139px;
+    border: 0;
+    font: 20px "Poppins", sans-serif;
+
+}
+input[type=password]{
+
+    width: 400px;
+    height: 40px;
+    padding-left: 20px;
+    background: #FFFFFF;
+    box-shadow: 0px 0px 24px 10px rgba(120, 96, 179, 0.3);
+    border-radius: 139px;
+    border: 0;
+    font: 20px "Poppins", sans-serif;
+
+}
+input[type=submit]{
+    width: 300px;
+    height: 40px;
+    color: white;
+    font: 20px "Poppins", sans-serif;
+    background: linear-gradient(83.2deg, rgba(203, 33, 142, 0.75) 5.51%, rgba(109, 25, 216, 0.75) 114.12%);
+    box-shadow: 0px 0px 24px 10px rgba(120, 96, 179, 0.3);
+    border-radius: 139px;
+    border: 0;
+}
+.padding-top-30px{
+    padding-top: 50px;
+}
+.padding-top-10px{
+    padding-top: 20px;
+}
+.padding-bottom-10px{
+    padding-bottom: 10px;
+}
+
+input[type=button]{
+    box-shadow: 0px 0px 24px 10px rgba(120, 96, 179, 0.3);
+    border-radius: 139px;
+    border: 0;
+    width: 300px;
+    height: 40px;
+    font: 20px "Poppins", sans-serif;
+
+}
+
+h1{
+    font: 35px "Poppins", sans-serif;
+    font-weight: 500;
+
+}
+h3{
+    font: 20px "Poppins", sans-serif;
+    font-weight: 300;
+
+}
+p{
+    font: 20px "Poppins", sans-serif;
+}
+#title-area{
+    width: 50%;
+    float: left;
+    color: white;
+    font: 30px "Roboto", sans-serif;
+    font-weight: 300;
+    padding-top: 350px;
+    padding-left: 150px;
+}
+#login-area{
+    width: 50%;
+    float: left;
+    text-align:center;
+    padding-top: 100px;
+
+}
+.big-text{
+    font: 96px "Roboto", sans-serif;
+    font-weight: 300;
+
+}
+.alert-error{
+    font: 20px "Poppins", sans-serif;
+    color: rgba(255, 0, 0, 0.71);
+}
+@media only screen and (max-height:850px){
+    #cornered-rectangle{
+        width: 450px;
+        height: 600px;
+        border-radius: 70px;
+    }
+
+    input[type=text]{
+        width: 275px;
+        height: 40px;
+        border-radius: 70px;
+    }
+    input[type=password]{
+        width: 275px;
+        height: 40px;
+        border-radius: 70px;
+    }
+
+    input[type=submit]{
+        width: 275px;
+        height: 40px;
+        border-radius: 70px;
+    }
+
+    #login-area{
+        padding-top: 50px;
+    }
+
+    #title-area{
+        font-size: 24px;
+        padding-top: 250px;
+    }
+    #form-area{
+        top: 5%;
+    }
+}
